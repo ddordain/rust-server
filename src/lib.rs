@@ -6,6 +6,16 @@ use actix_web::{middleware, web, App, HttpRequest, HttpServer, Result};
 use serde::Serialize;
 
 
+// add of new imports for multi-threading
+use std::cell::Cell;
+use std::sync::atomic::{AtomicUsize, Ordering};
+use std::sync::{Arc, Mutex};
+
+// hold the server counter atomic
+static SERVER_COUNTER: AtomicUsize = AtomicUsize::new(0);
+
+
+
 pub struct MessageApp {
     port: u16,
 }
@@ -32,7 +42,9 @@ impl MessageApp {
 
 #[derive(Serialize)]
 struct IndexResponse {
-    message : String,
+    server_id: usize,
+    request_count: Cell<usize>,
+    messages: Vec<String>,
 }
 
 #[get("/")]
@@ -46,4 +58,11 @@ fn index(req: HttpRequest) -> Result<web::Json<IndexResponse>> {
     Ok(web::Json(IndexResponse {
         message: hello.to_owned(),
     }))
+}
+
+
+struct AppState {
+    server_id: usize,
+    request_count: Cell<usize>,
+    messages: Arc<Mutex<Vec<String>>>,
 }
