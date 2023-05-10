@@ -1,5 +1,5 @@
-use messages_actix::MessageApp;
 use dotenv::dotenv;
+use messages_actix::MessageApp;
 
 fn main() -> std::io::Result<()> {
     dotenv().ok();
