@@ -1,7 +1,10 @@
 #[macro_use]
 extern crate actix_web;
 
-use actix_web::{middleware, web, App, HttpServer, Result};
+use actix_web::{
+    middleware, web, App, HttpServer, HttpRequest, HttpResponse, Result,
+    error::{Error, InternalError, JsonPayloadError},
+};
 use serde::{ Serialize, Deserialize};
 
 // add of new imports for multi-threading
@@ -11,6 +14,7 @@ use std::sync::{Arc, Mutex};
 
 // hold the server counter atomic
 static SERVER_COUNTER: AtomicUsize = AtomicUsize::new(0);
+const LOG_FORMAT: &'static str = r#""%r" %s %b "%{User-Agent}i" %D"#;
 
 pub struct MessageApp {
     port: u16,
@@ -31,11 +35,15 @@ impl MessageApp {
                     request_count: Cell::new(0),
                     messages: messages.clone(),
                 })
-                .wrap(middleware::Logger::default())
+                .wrap(middleware::Logger::new(LOG_FORMAT))
                 .service(index)
                 .service(
                     web::resource("/send")
-                        .data(web::JsonConfig::default().limit(4096))
+                        .data(
+                            web::JsonConfig::default()
+                                .limit(4096)
+                                .error_handler(post_error)
+                        )
                         .route(web::post().to(post))
                 )
                 .service(clear)
@@ -69,6 +77,11 @@ struct PostResponse {
     server_id: usize,
     request_count: usize,
     message: String,
+}
+
+#[derive(Serialize)]
+struct PostError {
+    error: String,
 }
 
 #[get("/")]
@@ -109,5 +122,13 @@ fn clear(state: web::Data<AppState>) -> Result<web::Json<IndexResponse>> {
     Ok(web::Json(IndexResponse {
         server_id: state.server_id,
         request_count,
-        messages: vec![], }))
+        messages: vec![], 
+    }))
+}
+
+fn post_error(err: JsonPayloadError, _req: &HttpRequest) -> Error {
+    let post_error = PostError {
+        error: format!("{}", err),
+    };
+    InternalError::from_response(err, HttpResponse::BadRequest().json(post_error)).into()
 }
