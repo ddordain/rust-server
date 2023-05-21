@@ -23,7 +23,11 @@ Here are some examples of how to use this server.
 
 ```bash 
 cargo build
+cargo run <port>
 ```
+
+the port is optional, the server will run on port 8080 by default.
+
 
 ### Retrieve the server state
 ```bash
