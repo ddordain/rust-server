@@ -28,23 +28,32 @@ cargo run <port>
 
 the port is optional, the server will run on port 8080 by default.
 
+### Create a env file and paste inside the following env var:
+```bash
+RUST_LOG="actix_web=info"
+```
 
 ### Retrieve the server state
 ```bash
-$ curl localhost:8080
+curl localhost:8080
 ```
 
 ### Retriving a message by its index
 ```bash
-$ curl localhost:8080/lookup/3
+curl localhost:8080/lookup/3
 ```
 
 ### Post a message
 ```bash
-$ curl -X POST -H "Content-Type: application/json" -d '{"message": "hello"}' localhost:8080/send
+curl -X POST -H "Content-Type: application/json" -d '{"message": "hello"}' localhost:8080/send
 ```
 
 ### Clear all messages
 ```bash
 curl -X POST localhost:8080/clear
+```
+
+### Test script for sending a lot of messages random messages (can be configured) + you need python3 !!!
+```bash
+./test_thread.sh
 ```
