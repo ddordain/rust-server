@@ -19,7 +19,7 @@ it is also designed to be multi-threaded, with each worker maintaining its own s
 
 Here are some examples of how to use this server.
 
-## Launch of the server
+### Launch of the server
 
 ```bash 
 cargo build
@@ -28,7 +28,7 @@ cargo run <port>
 
 the port is optional, the server will run on port 8080 by default.
 
-### Create a env file and paste inside the following env var:
+### Create an '.env' file and paste the following env var inside
 ```bash
 RUST_LOG="actix_web=info"
 ```
@@ -53,7 +53,7 @@ curl -X POST -H "Content-Type: application/json" -d '{"message": "hello"}' local
 curl -X POST localhost:8080/clear
 ```
 
-### Test script for sending a lot of messages random messages (can be configured) + you need python3 !!!
+### Test script for sending a large number of random messages (configurable) - Require Python3 
 ```bash
 ./test_thread.sh
 ```
