@@ -50,7 +50,7 @@ impl MessageApp {
                 .service(lookup)
         })
         .bind(("127.0.0.1", self.port))?
-        .workers(8)
+        .workers(1)
         .run()
     }
 }
